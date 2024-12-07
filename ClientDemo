@@ -1,0 +1,52 @@
+package com.klef.jfsd.exam;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+
+public class ClientDemo {
+    
+    public static void main(String[] args) {
+        // Step 1: Set up the Hibernate session factory
+        SessionFactory factory = new Configuration()
+                .configure("hibernate.cfg.xml")
+                .addAnnotatedClass(Department.class)
+                .buildSessionFactory();
+
+        // Step 2: Create a session
+        Session session = factory.getCurrentSession();
+
+        try {
+            // Step 3: Begin a transaction
+            session.beginTransaction();
+
+            // Step 4: Update the Department using HQL with positional parameters
+            int departmentId = 1; // Assume we want to update department with ID 1
+            String newName = "Computer Science";
+            String newLocation = "Building A";
+
+            String hql = "UPDATE Department SET name = ?, location = ? WHERE departmentId = ?";
+            int result = session.createQuery(hql)
+                    .setParameter(0, newName)
+                    .setParameter(1, newLocation)
+                    .setParameter(2, departmentId)
+                    .executeUpdate();
+
+            // Step 5: Commit the transaction
+            session.getTransaction().commit();
+
+            // Output the result
+            if (result > 0) {
+                System.out.println("Department updated successfully!");
+            } else {
+                System.out.println("No Department found with the given ID.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // Step 6: Clean up the session and factory
+            session.close();
+            factory.close();
+        }
+    }
+}
